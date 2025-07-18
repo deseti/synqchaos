@@ -36,13 +36,22 @@ SynqChaos is a web-based multiplayer game built with React and Vite, featuring b
    # or
    yarn install
    ```
-3. Start the development server:
+3. Set up environment variables:
+   ```sh
+   cp .env.example .env
+   ```
+   Then edit `.env` file and add your Supabase credentials:
+   ```
+   VITE_SUPABASE_URL=your-supabase-project-url
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   ```
+4. Start the development server:
    ```sh
    npm run dev
    # or
    yarn dev
    ```
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+5. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## Usage
 - Connect your wallet using RainbowKit.

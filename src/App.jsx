@@ -1,6 +1,6 @@
 // src/App.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RainbowKitProvider, getDefaultConfig, darkTheme } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { WagmiProvider } from 'wagmi';
@@ -11,9 +11,15 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Lobby } from './components/Lobby';
 import { Game } from './components/Game';
 import { AvatarSelector } from './components/AvatarSelector';
-import { GameOver } from './components/GameOver'; // NEW
+import { GameOver } from './components/GameOver';
+import { DuelLobby } from './components/DuelLobby';
+import { DuelGame } from './components/DuelGame';
+import { Leaderboard } from './components/Leaderboard';
+import { ChatSystem } from './components/ChatSystem';
+import { supabase } from './utils/supabaseClient';
 
 import '@rainbow-me/rainbowkit/styles.css';
+import './App.css';
 
 // Config remains the same
 const monadTestnet = {
@@ -34,36 +40,141 @@ const queryClient = new QueryClient();
 
 // This component now manages the main application flow
 function AppContent({ playerAvatar }) {
-  // NEW: Game state now includes 'gameover'
-  const [gameState, setGameState] = useState('lobby'); // 'lobby', 'game', 'gameover'
+  // Game state includes: 'lobby', 'game', 'gameover', 'duel-lobby', 'duel'
+  const [gameState, setGameState] = useState('lobby');
   const [finalScore, setFinalScore] = useState(0);
   const [selectedNFT, setSelectedNFT] = useState(null);
-  const { isConnected } = useAccount();
+  const [currentDuel, setCurrentDuel] = useState(null);
+  const { isConnected, address } = useAccount();
 
-  const handleGameOver = (score) => {
+  // Auto-register player when wallet connects
+  useEffect(() => {
+    const registerPlayer = async () => {
+      if (!isConnected || !address) return;
+
+      try {
+        // Check if player already exists
+        const { data: existingPlayer, error: checkError } = await supabase
+          .from('players')
+          .select('address')
+          .eq('address', address)
+          .single();
+
+        if (checkError && checkError.code !== 'PGRST116') {
+          // PGRST116 = no rows returned, which is expected for new players
+          console.error('Error checking existing player:', checkError);
+          return;
+        }
+
+        // If player doesn't exist, register them
+        if (!existingPlayer) {
+          const { error: insertError } = await supabase
+            .from('players')
+            .insert([
+              {
+                address: address,
+                avatar: playerAvatar,
+                created_at: new Date().toISOString()
+              }
+            ]);
+
+          if (insertError) {
+            console.error('Error registering player:', insertError);
+          } else {
+            console.log('Player registered successfully:', address);
+          }
+        }
+      } catch (error) {
+        console.error('Error in player registration:', error);
+      }
+    };
+
+    registerPlayer();
+  }, [isConnected, address, playerAvatar]);
+
+  const handleGameOver = async (score, opponentScore) => {
     setFinalScore(score);
     setGameState('gameover');
+    
+    // Update player score in database
+    if (isConnected && address && score > 0) {
+      try {
+        const { error } = await supabase
+          .from('players')
+          .upsert({
+            address: address,
+            avatar: playerAvatar,
+            score: score,
+            total_score: score,
+            total_games: 1, // For now, we'll increment this later
+            updated_at: new Date().toISOString()
+          }, {
+            onConflict: 'address',
+            ignoreDuplicates: false
+          });
+
+        if (error) {
+          console.error('Error updating player score:', error);
+        } else {
+          console.log('Player score updated successfully:', { address, score });
+        }
+      } catch (error) {
+        console.error('Error in score update:', error);
+      }
+    }
   };
 
   const handlePlayAgain = () => {
     setGameState('lobby');
   };
 
+  const handleStartDuel = (duel) => {
+    setCurrentDuel(duel);
+    setGameState('duel');
+  };
+
   const renderGameState = () => {
     switch (gameState) {
       case 'game':
-        return <Game onGameOver={handleGameOver} playerAvatar={playerAvatar} selectedNFT={selectedNFT} />;
+        return <Game onGameOver={(score) => handleGameOver(score)} playerAvatar={playerAvatar} selectedNFT={selectedNFT} />;
       case 'gameover':
         return <GameOver score={finalScore} onPlayAgain={handlePlayAgain} />;
+      case 'duel-lobby':
+        return <DuelLobby onStartDuel={handleStartDuel} playerAvatar={playerAvatar} selectedNFT={selectedNFT} />;
+      case 'duel':
+        return (
+          <>
+            <DuelGame 
+              duel={currentDuel} 
+              onGameOver={handleGameOver} 
+              playerAvatar={playerAvatar} 
+              selectedNFT={selectedNFT} 
+            />
+            <ChatSystem duelId={currentDuel?.id} />
+          </>
+        );
       case 'lobby':
       default:
         return (
-          <Lobby 
-            onStartGame={() => setGameState('game')} 
-            playerAvatar={playerAvatar}
-            selectedNFT={selectedNFT}
-            onSelectNFT={setSelectedNFT}
-          />
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
+            <div className="flex flex-col gap-6">
+              <Lobby 
+                onStartGame={() => setGameState('game')} 
+                playerAvatar={playerAvatar}
+                selectedNFT={selectedNFT}
+                onSelectNFT={setSelectedNFT}
+              />
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setGameState('duel-lobby')}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105"
+                >
+                  ⚔️ Duel Arena
+                </button>
+              </div>
+            </div>
+            <Leaderboard />
+          </div>
         );
     }
   };

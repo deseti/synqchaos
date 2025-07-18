@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { Avatar } from './Avatar';
 import { NFTCollection } from './NFTCollection';
+import { PlayerStatus } from './PlayerStatus';
 
 export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
   const { address } = useAccount();
@@ -30,6 +31,9 @@ export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
   return (
     <div className="w-full max-w-md bg-gray-800/50 rounded-lg p-6 shadow-2xl backdrop-blur-sm">
       <h2 className="text-2xl font-bold text-center text-purple-300 mb-6">Game Lobby</h2>
+      
+      {/* Player Registration Status - Debug Info */}
+      <PlayerStatus />
       
       {/* NFT Offering Section */}
       <div className="mb-6 p-4 bg-gray-700/30 rounded-lg">
