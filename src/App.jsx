@@ -156,47 +156,149 @@ function AppContent({ playerAvatar }) {
       case 'lobby':
       default:
         return (
-          <div className="flex flex-col lg:flex-row gap-8 items-start">
-            <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 w-full">
+            {/* Main Game Section */}
+            <div className="xl:col-span-2 space-y-6">
               <Lobby 
                 onStartGame={() => setGameState('game')} 
                 playerAvatar={playerAvatar}
                 selectedNFT={selectedNFT}
                 onSelectNFT={setSelectedNFT}
               />
-              <div className="flex gap-4">
+              
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => setGameState('duel-lobby')}
-                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-transform transform hover:scale-105"
+                  className="btn-danger flex-1 flex items-center justify-center space-x-2"
                 >
-                  ⚔️ Duel Arena
+                  <span className="text-xl">⚔️</span>
+                  <span>Enter Duel Arena</span>
+                </button>
+                <button
+                  onClick={() => setGameState('game')}
+                  className="btn-secondary flex-1 flex items-center justify-center space-x-2"
+                >
+                  <span className="text-xl">🎮</span>
+                  <span>Quick Play</span>
                 </button>
               </div>
             </div>
-            <Leaderboard />
+            
+            {/* Sidebar */}
+            <div className="xl:col-span-1">
+              <Leaderboard />
+            </div>
           </div>
         );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-4 sm:p-8 font-mono w-full">
-      <header className="w-full max-w-5xl flex justify-between items-center mb-16">
-        <h1 className="text-3xl sm:text-4xl font-bold text-purple-400">SynqChaos</h1>
-        <ConnectButton />
-      </header>
-      <main className="w-full flex-grow flex items-center justify-center">
-        {!isConnected ? (
-          <div className="text-center">
-            <h2 className="text-xl sm:text-2xl text-gray-400">Welcome to the Arena</h2>
-            <p className="text-gray-500 mt-2">Connect your wallet to join the lobby.</p>
+    <div className="min-h-screen bg-dark-950 text-white flex flex-col font-game">
+      {/* Background Effects */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse-slow animation-delay-400"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse-slow animation-delay-200"></div>
+      </div>
+
+      {/* Header */}
+      <header className="relative z-10 w-full px-4 sm:px-8 py-6">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center animate-float">
+              <span className="text-2xl font-bold text-white">S</span>
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-4xl font-cyber font-bold text-gradient animate-glow">
+                SynqChaos
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-400 font-light">Monad Gaming Arena</p>
+            </div>
           </div>
-        ) : (
-          renderGameState()
-        )}
+          <div className="flex items-center space-x-4">
+            <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-400">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Online</span>
+            </div>
+            <ConnectButton />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 flex-grow flex items-center justify-center px-4 sm:px-8 py-8">
+        <div className="w-full max-w-7xl">
+          {!isConnected ? (
+            <div className="text-center space-y-8 animate-fade-in">
+              <div className="space-y-4">
+                <h2 className="text-3xl sm:text-5xl font-cyber font-bold text-gradient">
+                  Welcome to the Arena
+                </h2>
+                <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                  Enter the ultimate gaming battlefield where skills meet blockchain technology. 
+                  Connect your wallet and prove your worth in the chaos.
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-12">
+                <div className="card p-6 text-center animate-slide-up">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl mx-auto mb-4 flex items-center justify-center">
+                    <span className="text-2xl">⚔️</span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-purple-300">Epic Battles</h3>
+                  <p className="text-gray-400 text-sm">Engage in thrilling multiplayer duels with unique gameplay mechanics</p>
+                </div>
+                
+                <div className="card p-6 text-center animate-slide-up animation-delay-200">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl mx-auto mb-4 flex items-center justify-center">
+                    <span className="text-2xl">🔮</span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-blue-300">NFT Power-ups</h3>
+                  <p className="text-gray-400 text-sm">Enhance your abilities with collectible NFTs and special powers</p>
+                </div>
+                
+                <div className="card p-6 text-center animate-slide-up animation-delay-400">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-green-700 rounded-xl mx-auto mb-4 flex items-center justify-center">
+                    <span className="text-2xl">🏆</span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 text-green-300">Global Rankings</h3>
+                  <p className="text-gray-400 text-sm">Climb the leaderboards and become the ultimate chaos champion</p>
+                </div>
+              </div>
+              
+              <div className="mt-12">
+                <div className="inline-flex items-center space-x-2 text-purple-400 animate-bounce-slow">
+                  <span className="text-lg">👆</span>
+                  <span className="text-lg font-semibold">Connect your wallet to begin</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="animate-scale-in">
+              {renderGameState()}
+            </div>
+          )}
+        </div>
       </main>
-      <footer className="w-full max-w-5xl mt-16 text-center text-gray-600">
-        <p>A multiplayer experiment for Monad Mission 6.</p>
+
+      {/* Footer */}
+      <footer className="relative z-10 w-full px-4 sm:px-8 py-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+            <div className="flex items-center space-x-4 text-sm text-gray-500">
+              <span>© 2025 SynqChaos</span>
+              <span className="hidden sm:inline">•</span>
+              <span className="hidden sm:inline">Powered by Monad</span>
+            </div>
+            <div className="flex items-center space-x-6 text-sm text-gray-500">
+              <a href="#" className="hover:text-purple-400 transition-colors">Documentation</a>
+              <a href="#" className="hover:text-purple-400 transition-colors">Discord</a>
+              <a href="#" className="hover:text-purple-400 transition-colors">Twitter</a>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

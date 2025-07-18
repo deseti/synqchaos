@@ -58,72 +58,170 @@ export function GameOver({ score, onPlayAgain }) {
   };
 
   return (
-    <div className="w-full max-w-lg text-center bg-gray-800/50 rounded-lg p-8 shadow-2xl backdrop-blur-sm">
-      <h1 className="text-4xl sm:text-5xl font-bold text-yellow-400 mb-4">Game Over</h1>
-      <p className="text-lg sm:text-xl text-gray-300 mb-2">Your Final Score:</p>
-      <p className="text-5xl sm:text-6xl font-bold text-white mb-4">{score}</p>
-      <p className="text-sm text-purple-400 mb-6">Rank: {gameStats.rank}</p>
+    <div className="w-full max-w-2xl mx-auto animate-scale-in">
+      <div className="card p-8 text-center space-y-6">
+        {/* Header */}
+        <div className="space-y-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-orange-500 rounded-full mx-auto flex items-center justify-center animate-float">
+            <span className="text-3xl">💀</span>
+          </div>
+          <h1 className="text-4xl sm:text-6xl font-cyber font-bold text-gradient animate-glow">
+            Game Over
+          </h1>
+          <p className="text-xl text-gray-400">The chaos has consumed you...</p>
+        </div>
 
-      {/* Game Stats Toggle */}
-      <button
-        onClick={() => setShowStats(!showStats)}
-        className="mb-4 text-sm text-blue-400 hover:text-blue-300 underline"
-      >
-        {showStats ? 'Hide Stats' : 'Show Game Stats'}
-      </button>
-
-      {showStats && (
-        <div className="mb-6 p-4 bg-gray-700/30 rounded-lg text-left">
-          <h3 className="text-lg font-semibold text-purple-300 mb-3 text-center">Game Statistics</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-400">Fragments Collected:</span>
-              <span className="text-white font-semibold">{gameStats.fragmentsCollected}</span>
+        {/* Score Display */}
+        <div className="space-y-4">
+          <div className="text-center">
+            <p className="text-lg text-gray-400 mb-2">Final Score</p>
+            <div className="relative">
+              <p className="text-6xl sm:text-7xl font-bold text-white mb-2 animate-glow">{score}</p>
+              <div className="absolute inset-0 text-6xl sm:text-7xl font-bold text-purple-500 animate-pulse opacity-50">{score}</div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Time Survived:</span>
-              <span className="text-white font-semibold">{gameStats.timeSpent}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Mutations Experienced:</span>
-              <span className="text-white font-semibold">{gameStats.mutationsExperienced}</span>
-            </div>
+            <p className="text-lg text-purple-400 font-semibold">Rank: {gameStats.rank}</p>
           </div>
         </div>
-      )}
 
-      <div className="space-y-4">
-        <button
-          onClick={handleMint}
-          disabled={isPending || isSuccess || isFeeLoading}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105 disabled:bg-gray-500 disabled:scale-100 disabled:cursor-not-allowed"
-        >
-          {isFeeLoading && 'Fetching Mint Fee...'}
-          {isPending && 'Check Wallet...'}
-          {isSuccess && 'Minted Successfully! 🎉'}
-          {!isFeeLoading && !isPending && !isSuccess && `Mint Chaos Orb (0.01 MON)`}
-        </button>
+        {/* Game Stats */}
+        <div className="space-y-4">
+          <button
+            onClick={() => setShowStats(!showStats)}
+            className="btn-secondary text-sm flex items-center space-x-2 mx-auto"
+          >
+            <span>{showStats ? '📊 Hide Stats' : '📊 Show Game Stats'}</span>
+          </button>
 
-        {isSuccess && data && (
-          <div className="text-green-400 mt-2 animate-bounce">
-            <p>✨ Transaction sent!</p>
-            <a href={`https://testnet.monadexplorer.com/tx/${data}`} target="_blank" rel="noopener noreferrer" className="underline hover:text-green-300">
-              View on Explorer
-            </a>
+          {showStats && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-slide-down">
+              <div className="card p-4 space-y-3">
+                <h3 className="text-lg font-semibold text-purple-300">Performance</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Fragments Collected:</span>
+                    <span className="text-white font-semibold">{gameStats.fragmentsCollected}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Time Survived:</span>
+                    <span className="text-white font-semibold">{gameStats.timeSpent}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Mutations Experienced:</span>
+                    <span className="text-white font-semibold">{gameStats.mutationsExperienced}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card p-4 space-y-3">
+                <h3 className="text-lg font-semibold text-blue-300">Achievements</h3>
+                <div className="space-y-2 text-sm">
+                  {score > 50 && (
+                    <div className="flex items-center space-x-2 text-yellow-400">
+                      <span>🏆</span>
+                      <span>Chaos Master</span>
+                    </div>
+                  )}
+                  {score > 20 && (
+                    <div className="flex items-center space-x-2 text-blue-400">
+                      <span>🎯</span>
+                      <span>Fragment Hunter</span>
+                    </div>
+                  )}
+                  {gameStats.mutationsExperienced > 5 && (
+                    <div className="flex items-center space-x-2 text-purple-400">
+                      <span>🧬</span>
+                      <span>Mutation Survivor</span>
+                    </div>
+                  )}
+                  {score <= 5 && (
+                    <div className="flex items-center space-x-2 text-gray-400">
+                      <span>🌱</span>
+                      <span>First Steps</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="space-y-4">
+          {/* Mint NFT Button */}
+          <div className="space-y-3">
+            <button
+              onClick={handleMint}
+              disabled={isPending || isSuccess || isFeeLoading}
+              className="btn-primary w-full text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {isFeeLoading && (
+                <span className="flex items-center space-x-2">
+                  <div className="loading-spinner w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                  <span>Fetching Mint Fee...</span>
+                </span>
+              )}
+              {isPending && (
+                <span className="flex items-center space-x-2">
+                  <div className="loading-spinner w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                  <span>Check Wallet...</span>
+                </span>
+              )}
+              {isSuccess && (
+                <span className="flex items-center space-x-2">
+                  <span>🎉</span>
+                  <span>Minted Successfully!</span>
+                </span>
+              )}
+              {!isFeeLoading && !isPending && !isSuccess && (
+                <span className="flex items-center space-x-2">
+                  <span>🔮</span>
+                  <span>Mint Chaos Orb (0.01 MON)</span>
+                </span>
+              )}
+            </button>
+
+            {isSuccess && data && (
+              <div className="card p-4 bg-green-500/10 border-green-500/20 animate-slide-up">
+                <p className="text-green-400 font-semibold mb-2">✨ Transaction Successful!</p>
+                <a 
+                  href={`https://testnet.monadexplorer.com/tx/${data}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-blue-400 hover:text-blue-300 underline text-sm"
+                >
+                  View on Monad Explorer →
+                </a>
+              </div>
+            )}
+
+            {error && (
+              <div className="card p-4 bg-red-500/10 border-red-500/20">
+                <p className="text-red-400 font-semibold mb-2">❌ Transaction Failed</p>
+                <p className="text-red-300 text-sm break-words">
+                  {error.shortMessage || error.message}
+                </p>
+              </div>
+            )}
           </div>
-        )}
-        {error && (
-          <div className="text-red-400 mt-2 text-xs break-words bg-red-900/20 rounded p-2">
-            <p>❌ Error: {error.shortMessage || error.message}</p>
-          </div>
-        )}
 
-        <button
-          onClick={onPlayAgain}
-          className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-all transform hover:scale-105"
-        >
-          🎮 Play Again
-        </button>
+          {/* Play Again Button */}
+          <button
+            onClick={onPlayAgain}
+            className="btn-secondary w-full text-lg"
+          >
+            <span className="flex items-center space-x-2">
+              <span>🎮</span>
+              <span>Play Again</span>
+            </span>
+          </button>
+        </div>
+
+        {/* Tip */}
+        <div className="text-center pt-4">
+          <p className="text-xs text-gray-500">
+            💡 Tip: Mint your Chaos Orb to unlock special abilities in future games!
+          </p>
+        </div>
       </div>
     </div>
   );
