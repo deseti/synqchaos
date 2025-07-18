@@ -310,12 +310,15 @@ function App() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={darkTheme({
+        <RainbowKitProvider 
+          theme={darkTheme({
             accentColor: '#9333ea',
             accentColorForeground: 'white',
             borderRadius: 'medium',
             fontStack: 'mono',
-          })}>
+          })}
+          locale="en-US"
+        >
           {!selectedAvatar ? (
             <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
               <AvatarSelector onSelect={setSelectedAvatar} />
