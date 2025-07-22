@@ -10,7 +10,6 @@ export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
   const { address } = useAccount();
   const [showNFTCollection, setShowNFTCollection] = useState(false);
 
-  // Mock players with enhanced data
   const players = [
     { 
       address: address || '0x...', 

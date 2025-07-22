@@ -40,11 +40,19 @@ SynqChaos is a web-based multiplayer game built with React and Vite, featuring b
    ```sh
    cp .env.example .env
    ```
-   Then edit `.env` file and add your Supabase credentials:
+   Then edit `.env` file and add your configuration:
    ```
    VITE_SUPABASE_URL=your-supabase-project-url
    VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   VITE_RAINBOWKIT_PROJECT_ID=your-rainbowkit-project-id
+   VITE_MULTISYNQ_APP_ID=your-multisynq-app-id
+   VITE_MULTISYNQ_API_KEY=your-multisynq-api-key
    ```
+   
+   **Important**: 
+   - Get your RainbowKit Project ID from [WalletConnect Cloud](https://cloud.walletconnect.com/)
+   - Get your Supabase credentials from your [Supabase dashboard](https://supabase.com/dashboard)
+   - Get your Multisynq credentials from your Multisynq dashboard
 4. Start the development server:
    ```sh
    npm run dev

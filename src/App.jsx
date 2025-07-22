@@ -32,7 +32,7 @@ const monadTestnet = {
 };
 const config = getDefaultConfig({
   appName: 'SynqChaos',
-  projectId: 'd37072cc4f613f8e5941ea2c31279dcd',
+  projectId: import.meta.env.VITE_RAINBOWKIT_PROJECT_ID,
   chains: [monadTestnet],
   ssr: false,
 });
