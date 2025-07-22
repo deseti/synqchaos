@@ -4,22 +4,22 @@ import { useAccount } from 'wagmi';
 import { useMultisynq } from '../contexts/MultisynqContext';
 
 export function LobbyPresence({ playerAvatar }) {
-    const session = useMultisynq();
+    const { session } = useMultisynq() || {};
     const { address } = useAccount();
 
     // This effect runs when the component mounts (player enters lobby)
     // and cleans up when it unmounts (player leaves lobby).
     useEffect(() => {
-        if (session && address && playerAvatar) {
+        if (session && session.view && address && playerAvatar) {
             const playerData = { address, avatar: playerAvatar, joinedAt: Date.now() };
 
             // Announce that this player has joined
-            session.publish(session.view.id, "player-join", playerData);
+            session.view.publish(session.view.sessionId, "player-join", playerData);
             console.log("Published player-join event for:", address);
 
             // The cleanup function is called when the component unmounts
             return () => {
-                session.publish(session.view.id, "player-leave", address);
+                session.view.publish(session.view.sessionId, "player-leave", address);
                 console.log("Published player-leave event for:", address);
             };
         }

@@ -16,6 +16,7 @@ import { DuelLobby } from './components/DuelLobby';
 import { DuelGame } from './components/DuelGame';
 import { Leaderboard } from './components/Leaderboard';
 import { ChatSystem } from './components/ChatSystem';
+import GlobalChat from './components/GlobalChat';
 import { supabase } from './utils/supabaseClient';
 import { MultisynqProvider } from './contexts/MultisynqContext';
 
@@ -46,6 +47,7 @@ function AppContent({ playerAvatar }) {
   const [finalScore, setFinalScore] = useState(0);
   const [selectedNFT, setSelectedNFT] = useState(null);
   const [currentDuel, setCurrentDuel] = useState(null);
+  const [isChatVisible, setIsChatVisible] = useState(false);
   const { isConnected, address } = useAccount();
 
   // Auto-register player when wallet connects
@@ -132,6 +134,10 @@ function AppContent({ playerAvatar }) {
   const handleStartDuel = (duel) => {
     setCurrentDuel(duel);
     setGameState('duel');
+  };
+
+  const toggleChat = () => {
+    setIsChatVisible((prev) => !prev);
   };
 
   const renderGameState = () => {
@@ -294,13 +300,48 @@ function AppContent({ playerAvatar }) {
               <span className="hidden sm:inline">Powered by Monad</span>
             </div>
             <div className="flex items-center space-x-6 text-sm text-gray-500">
-              <a href="#" className="hover:text-purple-400 transition-colors">Documentation</a>
-              <a href="#" className="hover:text-purple-400 transition-colors">Discord</a>
-              <a href="#" className="hover:text-purple-400 transition-colors">Twitter</a>
+              <a 
+                href="https://github.com/deseti/synqchaos/blob/master/README.md" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-purple-400 transition-colors"
+              >
+                Documentation
+              </a>
+              <a 
+                href="https://discord.com/users/882613906172952647" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-purple-400 transition-colors"
+              >
+                Discord
+              </a>
+              <a 
+                href="https://x.com/deseti_nad" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-purple-400 transition-colors"
+              >
+                X (Twitter)
+              </a>
+              <a 
+                href="https://github.com/deseti" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-purple-400 transition-colors"
+              >
+                GitHub
+              </a>
             </div>
           </div>
         </div>
       </footer>
+      
+      {/* Global Chat Component */}
+      <GlobalChat 
+        isVisible={isChatVisible} 
+        onToggle={() => setIsChatVisible(!isChatVisible)} 
+      />
     </div>
   );
 }

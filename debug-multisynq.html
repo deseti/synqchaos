@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Multisynq</title>
+    <script src="https://cdn.jsdelivr.net/npm/@multisynq/client@1.0.4"></script>
+</head>
+<body>
+    <h1>Multisynq Debug</h1>
+    <div id="output"></div>
+    
+    <script>
+        function checkMultisynq() {
+            const output = document.getElementById('output');
+            
+            setTimeout(() => {
+                console.log('Checking window.Multisynq...');
+                console.log('window.Multisynq:', window.Multisynq);
+                
+                if (window.Multisynq) {
+                    console.log('Multisynq object keys:', Object.keys(window.Multisynq));
+                    console.log('joinSession type:', typeof window.Multisynq.joinSession);
+                    
+                    output.innerHTML = `
+                        <p>✅ window.Multisynq exists</p>
+                        <p>Keys: ${Object.keys(window.Multisynq).join(', ')}</p>
+                        <p>joinSession type: ${typeof window.Multisynq.joinSession}</p>
+                    `;
+                } else {
+                    output.innerHTML = '<p>❌ window.Multisynq not found</p>';
+                }
+            }, 1000);
+        }
+        
+        checkMultisynq();
+    </script>
+</body>
+</html>
