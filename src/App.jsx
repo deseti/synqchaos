@@ -17,6 +17,7 @@ import { DuelGame } from './components/DuelGame';
 import { Leaderboard } from './components/Leaderboard';
 import { ChatSystem } from './components/ChatSystem';
 import { supabase } from './utils/supabaseClient';
+import { MultisynqProvider } from './contexts/MultisynqContext';
 
 import '@rainbow-me/rainbowkit/styles.css';
 import './App.css';
@@ -308,27 +309,29 @@ function AppContent({ playerAvatar }) {
 function App() {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider 
-          theme={darkTheme({
-            accentColor: '#9333ea',
-            accentColorForeground: 'white',
-            borderRadius: 'medium',
-            fontStack: 'mono',
-          })}
-          locale="en-US"
-        >
-          {!selectedAvatar ? (
-            <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-              <AvatarSelector onSelect={setSelectedAvatar} />
-            </div>
-          ) : (
-            <AppContent playerAvatar={selectedAvatar} />
-          )}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <MultisynqProvider>
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider 
+            theme={darkTheme({
+              accentColor: '#9333ea',
+              accentColorForeground: 'white',
+              borderRadius: 'medium',
+              fontStack: 'mono',
+            })}
+            locale="en-US"
+          >
+            {!selectedAvatar ? (
+              <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+                <AvatarSelector onSelect={setSelectedAvatar} />
+              </div>
+            ) : (
+              <AppContent playerAvatar={selectedAvatar} />
+            )}
+          </RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </MultisynqProvider>
   );
 }
 

@@ -5,6 +5,7 @@ import { useAccount } from 'wagmi';
 import { Avatar } from './Avatar';
 import { NFTCollection } from './NFTCollection';
 import { PlayerStatus } from './PlayerStatus';
+import { LobbyPresence } from './LobbyPresence';
 
 export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
   const { address } = useAccount();
@@ -59,6 +60,7 @@ export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
 
   return (
     <div className="w-full space-y-6 animate-fade-in">
+      <LobbyPresence playerAvatar={playerAvatar} />
       {/* Header */}
       <div className="text-center space-y-2">
         <h2 className="text-3xl sm:text-4xl font-cyber font-bold text-gradient">
