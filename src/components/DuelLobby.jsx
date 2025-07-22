@@ -11,12 +11,9 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
   const [inviteAddress, setInviteAddress] = useState('');
   const [showInviteForm, setShowInviteForm] = useState(false);
 
-  // Load available duels
   useEffect(() => {
     if (!isConnected) return;
     loadAvailableDuels();
-    
-    // Subscribe to real-time updates
     const duelsSubscription = supabase
       .channel('duels')
       .on('postgres_changes', 
@@ -26,7 +23,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
         }
       )
       .subscribe();
-
     return () => {
       supabase.removeChannel(duelsSubscription);
     };
@@ -43,8 +39,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
       if (error) throw error;
       
       setAvailableDuels(data || []);
-      
-      // Check if current player has an active duel
       const currentPlayerDuel = data?.find(duel => 
         duel.player1 === address || duel.player2 === address
       );
@@ -72,7 +66,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
 
       if (error) throw error;
 
-      // Add player to duel_participants table
       await supabase
         .from('duel_participants')
         .insert([
@@ -101,8 +94,8 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
         .insert([
           {
             player1: address,
-            player2: targetAddress, // Pre-fill invited player
-            status: 'invited' // New status for invited duels
+            player2: targetAddress,
+            status: 'invited'
           }
         ])
         .select()
@@ -110,7 +103,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
 
       if (error) throw error;
 
-      // Add player1 to duel_participants table
       await supabase
         .from('duel_participants')
         .insert([
@@ -136,7 +128,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
     
     setLoading(true);
     try {
-      // Update duel with player2
       const { error: duelError } = await supabase
         .from('duels')
         .update({ 
@@ -147,7 +138,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
 
       if (duelError) throw duelError;
 
-      // Add player to duel_participants table
       await supabase
         .from('duel_participants')
         .insert([
@@ -158,7 +148,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           }
         ]);
 
-      // Start the duel
       const duel = availableDuels.find(d => d.id === duelId);
       if (duel) {
         onStartDuel(duel);
@@ -175,16 +164,14 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
     
     setLoading(true);
     try {
-      // Update duel status to active
       const { error: duelError } = await supabase
         .from('duels')
         .update({ status: 'active' })
         .eq('id', duelId)
-        .eq('player2', address); // Ensure only invited player can accept
+        .eq('player2', address);
 
       if (duelError) throw duelError;
 
-      // Add player2 to duel_participants table
       await supabase
         .from('duel_participants')
         .insert([
@@ -195,7 +182,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           }
         ]);
 
-      // Start the duel
       const duel = availableDuels.find(d => d.id === duelId);
       if (duel) {
         onStartDuel({ ...duel, status: 'active' });
@@ -216,7 +202,7 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
         .from('duels')
         .delete()
         .eq('id', duelId)
-        .eq('player2', address); // Ensure only invited player can decline
+        .eq('player2', address);
 
       await supabase
         .from('duel_participants')
@@ -264,8 +250,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
   return (
     <div className="w-full max-w-2xl bg-gray-800/50 rounded-lg p-6 shadow-2xl backdrop-blur-sm">
       <h2 className="text-2xl font-bold text-center text-red-400 mb-6">⚔️ Duel Arena</h2>
-      
-      {/* NFT Influence Section */}
       {selectedNFT && (
         <div className="mb-6 p-4 bg-red-900/30 rounded-lg border border-red-500">
           <h3 className="text-lg font-semibold text-red-300 mb-2">Battle NFT Active</h3>
@@ -278,8 +262,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           </div>
         </div>
       )}
-
-      {/* Invite by Address Section */}
       {!myDuel && (
         <div className="mb-6 p-4 bg-purple-900/30 rounded-lg border border-purple-500">
           <h3 className="text-lg font-semibold text-purple-300 mb-3">Invite Friend to Duel</h3>
@@ -321,8 +303,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           )}
         </div>
       )}
-
-      {/* My Invites (Received) */}
       {availableDuels.filter(duel => duel.status === 'invited' && duel.player2 === address).length > 0 && (
         <div className="mb-6 p-4 bg-yellow-900/30 rounded-lg border border-yellow-500">
           <h3 className="text-lg font-semibold text-yellow-300 mb-3">📨 Duel Invites</h3>
@@ -360,8 +340,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           </div>
         </div>
       )}
-
-      {/* My Duel Status */}
       {myDuel && (
         <div className="mb-6 p-4 bg-blue-900/30 rounded-lg border border-blue-500">
           <h3 className="text-lg font-semibold text-blue-300 mb-2">Your Duel</h3>
@@ -395,8 +373,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           </div>
         </div>
       )}
-
-      {/* Create Duel Button */}
       {!myDuel && (
         <div className="mb-6">
           <button
@@ -408,8 +384,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           </button>
         </div>
       )}
-
-      {/* Available Open Duels */}
       <div className="space-y-3">
         <h3 className="text-lg font-semibold text-gray-300">Open Duels</h3>
         <div className="max-h-64 overflow-y-auto pr-2">
@@ -440,7 +414,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
               </div>
             ))}
         </div>
-        
         {availableDuels.filter(duel => duel.status === 'waiting' && duel.player1 !== address).length === 0 && (
           <p className="text-gray-400 text-sm text-center">No open duels available. Create one!</p>
         )}

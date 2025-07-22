@@ -40,7 +40,6 @@ const config = getDefaultConfig({
 });
 const queryClient = new QueryClient();
 
-// This component now manages the main application flow
 function AppContent({ playerAvatar }) {
   // Game state includes: 'lobby', 'game', 'gameover', 'duel-lobby', 'duel'
   const [gameState, setGameState] = useState('lobby');
@@ -164,7 +163,6 @@ function AppContent({ playerAvatar }) {
       default:
         return (
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 w-full">
-            {/* Main Game Section */}
             <div className="xl:col-span-2 space-y-6">
               <Lobby 
                 onStartGame={() => setGameState('game')} 
@@ -173,7 +171,6 @@ function AppContent({ playerAvatar }) {
                 onSelectNFT={setSelectedNFT}
               />
               
-              {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => setGameState('duel-lobby')}
@@ -192,7 +189,6 @@ function AppContent({ playerAvatar }) {
               </div>
             </div>
             
-            {/* Sidebar */}
             <div className="xl:col-span-1">
               <Leaderboard />
             </div>
@@ -203,14 +199,12 @@ function AppContent({ playerAvatar }) {
 
   return (
     <div className="min-h-screen bg-dark-950 text-white flex flex-col font-game">
-      {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse-slow animation-delay-400"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl animate-pulse-slow animation-delay-200"></div>
       </div>
 
-      {/* Header */}
       <header className="relative z-10 w-full px-4 sm:px-8 py-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
@@ -234,7 +228,6 @@ function AppContent({ playerAvatar }) {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="relative z-10 flex-grow flex items-center justify-center px-4 sm:px-8 py-8">
         <div className="w-full max-w-7xl">
           {!isConnected ? (
@@ -290,7 +283,6 @@ function AppContent({ playerAvatar }) {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="relative z-10 w-full px-4 sm:px-8 py-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
@@ -337,7 +329,6 @@ function AppContent({ playerAvatar }) {
         </div>
       </footer>
       
-      {/* Global Chat Component */}
       <GlobalChat 
         isVisible={isChatVisible} 
         onToggle={() => setIsChatVisible(!isChatVisible)} 
@@ -346,7 +337,6 @@ function AppContent({ playerAvatar }) {
   );
 }
 
-// The main App component remains the same
 function App() {
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   return (

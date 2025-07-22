@@ -61,15 +61,12 @@ export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
   return (
     <div className="w-full space-y-6 animate-fade-in">
       <LobbyPresence playerAvatar={playerAvatar} />
-      {/* Header */}
       <div className="text-center space-y-2">
         <h2 className="text-3xl sm:text-4xl font-cyber font-bold text-gradient">
           Game Lobby
         </h2>
         <p className="text-gray-400">Prepare for battle and enhance your abilities</p>
       </div>
-
-      {/* Stats Overview */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="card p-4 text-center">
           <div className="text-2xl font-bold text-purple-400">{players.length}</div>
@@ -94,7 +91,6 @@ export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Player Status Section */}
         <div className="card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold text-white">Your Status</h3>
@@ -105,8 +101,6 @@ export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
           </div>
           <PlayerStatus />
         </div>
-
-        {/* NFT Enhancement Section */}
         <div className="card p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold text-blue-300">Chaos Influence</h3>
@@ -151,13 +145,11 @@ export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
         </div>
       </div>
 
-      {/* Players List */}
       <div className="card p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-semibold text-white">Battle Arena</h3>
           <span className="text-sm text-gray-400">{players.length} warriors assembled</span>
         </div>
-        
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-64 overflow-y-auto pr-2">
           {players.map((player, index) => (
             <div 
@@ -209,7 +201,6 @@ export function Lobby({ onStartGame, playerAvatar, selectedNFT, onSelectNFT }) {
         </div>
       </div>
 
-      {/* Start Game Button */}
       <div className="text-center">
         <button 
           onClick={onStartGame} 

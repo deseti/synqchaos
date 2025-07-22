@@ -10,11 +10,9 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
   const [inviteAddress, setInviteAddress] = useState('');
   const [showInviteForm, setShowInviteForm] = useState(false);
 
-  // Load available duels
   useEffect(() => {
     if (!isConnected) return;
     loadAvailableDuels();
-    
     // Subscribe to real-time updates
     const duelsSubscription = supabase
       .channel('duels')
@@ -41,7 +39,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
 
       if (error) throw error;
       
-      setAvailableDuels(data || []);
       
       // Check if current player has an active duel
       const currentPlayerDuel = data?.find(duel => 
@@ -68,7 +65,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
         ])
         .select()
         .single();
-
       if (error) throw error;
 
       // Add player to duel_participants table
@@ -105,7 +101,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           }
         ])
         .select()
-        .single();
 
       if (error) throw error;
 
@@ -131,7 +126,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
   };
 
   const joinDuel = async (duelId) => {
-    if (!isConnected || loading) return;
     
     setLoading(true);
     try {
@@ -142,7 +136,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           player2: address,
           status: 'active'
         })
-        .eq('id', duelId);
 
       if (duelError) throw duelError;
 
@@ -153,7 +146,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           {
             address: address,
             avatar: playerAvatar,
-            duel_id: duelId
           }
         ]);
 
@@ -170,7 +162,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
   };
 
   const acceptInvite = async (duelId) => {
-    if (!isConnected || loading) return;
     
     setLoading(true);
     try {
@@ -179,7 +170,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
         .from('duels')
         .update({ status: 'active' })
         .eq('id', duelId)
-        .eq('player2', address);
 
       if (duelError) throw duelError;
 
@@ -190,7 +180,6 @@ export function DuelLobby({ onStartDuel, playerAvatar, selectedNFT }) {
           {
             address: address,
             avatar: playerAvatar,
-            duel_id: duelId
           }
         ]);
 

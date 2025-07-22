@@ -7,42 +7,37 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
   const joystickRef = useRef(null);
   const knobRef = useRef(null);
 
-  // Constants
   const JOYSTICK_SIZE = 100;
   const KNOB_SIZE = 40;
   const MAX_DISTANCE = (JOYSTICK_SIZE - KNOB_SIZE) / 2;
 
-  // Update parent component when keys change
   useEffect(() => {
     onInputChange(activeKeys);
   }, [activeKeys, onInputChange]);
 
-  // Calculate direction from joystick position
   const updateKeysFromJoystick = useCallback((x, y) => {
     const distance = Math.sqrt(x * x + y * y);
     if (distance < 15) {
-      // Dead zone - no movement
       setActiveKeys({});
       return;
     }
 
     const newKeys = {};
-    const threshold = 20; // Minimum distance to register direction
+    const threshold = 20;
 
     if (Math.abs(x) > threshold) {
-      if (x > 0) newKeys.d = true; // Right
-      if (x < 0) newKeys.a = true; // Left
+      if (x > 0) newKeys.d = true;
+      if (x < 0) newKeys.a = true;
     }
 
     if (Math.abs(y) > threshold) {
-      if (y > 0) newKeys.s = true; // Down
-      if (y < 0) newKeys.w = true; // Up
+      if (y > 0) newKeys.s = true;
+      if (y < 0) newKeys.w = true;
     }
 
     setActiveKeys(newKeys);
   }, []);
 
-  // Handle joystick drag
   const handleJoystickMove = useCallback((clientX, clientY) => {
     if (!joystickRef.current) return;
 
@@ -53,7 +48,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
     let x = clientX - centerX;
     let y = clientY - centerY;
 
-    // Limit to max distance
     const distance = Math.sqrt(x * x + y * y);
     if (distance > MAX_DISTANCE) {
       const angle = Math.atan2(y, x);
@@ -65,7 +59,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
     updateKeysFromJoystick(x, y);
   }, [updateKeysFromJoystick]);
 
-  // Touch events for joystick
   const handleTouchStart = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -87,7 +80,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
     setActiveKeys({});
   };
 
-  // Mouse events for joystick (for testing on desktop)
   const handleMouseDown = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -107,7 +99,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
     setActiveKeys({});
   };
 
-  // Add global mouse event listeners
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
@@ -124,7 +115,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
     };
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove]);
 
-  // Handle directional button press
   const handleButtonPress = (key) => {
     setActiveKeys(prev => ({ ...prev, [key]: true }));
   };
@@ -141,7 +131,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
 
   return (
     <>
-      {/* Virtual Joystick */}
       <div className="fixed bottom-6 left-6 z-50">
         <div className="flex flex-col items-center space-y-2">
           <div
@@ -154,7 +143,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
             onTouchStart={handleTouchStart}
             onMouseDown={handleMouseDown}
           >
-            {/* Joystick Knob */}
             <div
               ref={knobRef}
               className="absolute bg-purple-500 border-2 border-purple-400 rounded-full transition-all duration-75 shadow-lg"
@@ -167,7 +155,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
               }}
             />
             
-            {/* Direction indicators */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="absolute top-2 text-gray-400 text-xs">↑</div>
               <div className="absolute bottom-2 text-gray-400 text-xs">↓</div>
@@ -182,10 +169,8 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
         </div>
       </div>
 
-      {/* Alternative D-Pad (Hidden by default, can be toggled) */}
       <div className="fixed bottom-6 right-6 z-50 opacity-50">
         <div className="flex flex-col items-center space-y-1">
-          {/* Up button */}
           <button
             className={`w-12 h-12 bg-gray-800/80 border border-gray-600 rounded-lg flex items-center justify-center text-white touch-none select-none ${
               activeKeys.w ? 'bg-purple-600/80 border-purple-400' : 'hover:bg-gray-700/80'
@@ -215,7 +200,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
           </button>
           
           <div className="flex space-x-1">
-            {/* Left button */}
             <button
               className={`w-12 h-12 bg-gray-800/80 border border-gray-600 rounded-lg flex items-center justify-center text-white touch-none select-none ${
                 activeKeys.a ? 'bg-purple-600/80 border-purple-400' : 'hover:bg-gray-700/80'
@@ -244,7 +228,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
               ←
             </button>
             
-            {/* Right button */}
             <button
               className={`w-12 h-12 bg-gray-800/80 border border-gray-600 rounded-lg flex items-center justify-center text-white touch-none select-none ${
                 activeKeys.d ? 'bg-purple-600/80 border-purple-400' : 'hover:bg-gray-700/80'
@@ -274,7 +257,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
             </button>
           </div>
           
-          {/* Down button */}
           <button
             className={`w-12 h-12 bg-gray-800/80 border border-gray-600 rounded-lg flex items-center justify-center text-white touch-none select-none ${
               activeKeys.s ? 'bg-purple-600/80 border-purple-400' : 'hover:bg-gray-700/80'
@@ -309,7 +291,6 @@ export function VirtualControls({ onInputChange, isVisible = true }) {
         </div>
       </div>
 
-      {/* Control toggle hint */}
       <div className="fixed bottom-2 right-2 z-40">
         <div className="text-xs text-gray-500 bg-black/50 rounded px-2 py-1">
           📱 Touch controls active

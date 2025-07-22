@@ -46,14 +46,12 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
   const [player, setPlayer] = useState({ x: 100, y: 100, score: 0, direction: 'right', velocity: { x: 0, y: 0 } });
   const [opponent, setOpponent] = useState({ x: 400, y: 100, score: 0, direction: 'left', velocity: { x: 0, y: 0 } });
   const [fragments, setFragments] = useState([]);
-  const [timeLeft, setTimeLeft] = useState(90); // 90 seconds for duel
+  const [timeLeft, setTimeLeft] = useState(90);
   const [activeMutation, setActiveMutation] = useState(null);
   const [mutationTimeLeft, setMutationTimeLeft] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isPlayer1] = useState(duel.player1 === address);
   const [virtualKeys, setVirtualKeys] = useState({});
-  
-  // Use hybrid input (keyboard + virtual controls)
   const keys = useHybridInput(virtualKeys);
   const isMobile = useIsMobile();
   const arenaRef = useRef(null);
@@ -90,7 +88,6 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
   // Broadcast player state
   const broadcastPlayerState = useCallback((playerState) => {
     if (!duel) return;
-    
     supabase
       .channel(`duel_${duel.id}`)
       .send({
@@ -103,7 +100,6 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
       });
   }, [duel, address]);
 
-  // Update sound manager when sound setting changes
   useEffect(() => {
     soundManager.setEnabled(soundEnabled);
   }, [soundEnabled]);
@@ -113,7 +109,6 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
     if (!duel || !address) return;
     
     try {
-      // Update duel status to completed
       const { error: duelError } = await supabase
         .from('duels')
         .update({
@@ -130,7 +125,6 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
         console.error('Error updating duel:', duelError);
       }
 
-      // Update player score in players table
       const { error: playerError } = await supabase
         .from('players')
         .upsert({
@@ -138,7 +132,7 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
           avatar: playerAvatar,
           score: finalPlayerScore,
           total_score: finalPlayerScore,
-          total_games: 1, // We'll improve this to increment later
+          total_games: 1,
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'address',
@@ -267,10 +261,8 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
           right: player.x + playerSize, 
           bottom: player.y + playerSize 
         };
-        
         const remainingFragments = [];
         let collectedCount = 0;
-
         for (const fragment of currentFragments) {
           const fragmentRect = { 
             left: fragment.x, 
@@ -278,14 +270,11 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
             right: fragment.x + fragmentSize, 
             bottom: fragment.y + fragmentSize 
           };
-          
           if (playerRect.left < fragmentRect.right && 
               playerRect.right > fragmentRect.left && 
               playerRect.top < fragmentRect.bottom && 
               playerRect.bottom > fragmentRect.top) {
             collectedCount++;
-            
-            // Broadcast fragment collection
             supabase
               .channel(`duel_${duel.id}`)
               .send({
@@ -300,22 +289,17 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
             remainingFragments.push(fragment);
           }
         }
-
         if (collectedCount > 0) {
           soundManager.playCollectSound();
           setPlayer(p => ({ ...p, score: p.score + collectedCount }));
-          
-          // Spawn new fragments
           for (let i = 0; i < collectedCount; i++) {
             const newFragment = spawnFragment();
             if (newFragment) remainingFragments.push(newFragment);
           }
         }
-
         return remainingFragments;
       });
     };
-
     const collisionInterval = setInterval(checkCollisions, 16);
     return () => clearInterval(collisionInterval);
   }, [player.x, player.y, duel, address, spawnFragment]);

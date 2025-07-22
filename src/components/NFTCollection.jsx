@@ -1,5 +1,3 @@
-// src/components/NFTCollection.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
 import ChaosOrbABI from '../abi/ChaosOrb.json';
@@ -14,7 +12,6 @@ export function NFTCollection({ onSelectNFT, selectedNFT, onClose }) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
-  // Read NFT balance
   const { data: balance } = useReadContract({
     address: chaosOrbContractAddress,
     abi: chaosOrbABI,
@@ -25,7 +22,6 @@ export function NFTCollection({ onSelectNFT, selectedNFT, onClose }) {
   useEffect(() => {
     if (balance !== undefined) {
       setNFTBalance(Number(balance));
-      // Generate mock NFTs for demonstration
       const mockNFTs = [];
       for (let i = 0; i < Number(balance); i++) {
         mockNFTs.push({
@@ -102,7 +98,6 @@ export function NFTCollection({ onSelectNFT, selectedNFT, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
       <div className="card w-full max-w-6xl max-h-[90vh] overflow-hidden animate-scale-in">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 border-b border-dark-700">
           <div className="mb-4 sm:mb-0">
             <h2 className="text-2xl sm:text-3xl font-cyber font-bold text-gradient">Chaos Orb Collection</h2>
@@ -152,7 +147,6 @@ export function NFTCollection({ onSelectNFT, selectedNFT, onClose }) {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Filters */}
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 {['all', 'common', 'rare', 'epic', 'legendary'].map((rarity) => (
                   <button
@@ -173,8 +167,6 @@ export function NFTCollection({ onSelectNFT, selectedNFT, onClose }) {
                   </button>
                 ))}
               </div>
-
-              {/* NFT Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredNFTs.map((nft) => (
                   <div
@@ -187,7 +179,6 @@ export function NFTCollection({ onSelectNFT, selectedNFT, onClose }) {
                     onClick={() => onSelectNFT(nft)}
                   >
                     <div className="p-6 space-y-4">
-                      {/* NFT Image/Icon */}
                       <div className="relative">
                         <div className={`w-20 h-20 bg-gradient-to-br ${getRarityColor(nft.rarity)} rounded-xl mx-auto flex items-center justify-center animate-float`}>
                           <span className="text-3xl">🔮</span>
@@ -203,8 +194,6 @@ export function NFTCollection({ onSelectNFT, selectedNFT, onClose }) {
                           </span>
                         </div>
                       </div>
-
-                      {/* NFT Info */}
                       <div className="text-center space-y-2">
                         <h3 className="font-bold text-white text-lg">{nft.name}</h3>
                         <p className={`text-sm font-semibold ${getRarityTextColor(nft.rarity)}`}>

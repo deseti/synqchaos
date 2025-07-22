@@ -1,13 +1,10 @@
-// src/contexts/MultisynqContext.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-// We'll define the classes after Multisynq is loaded
 let PresenceModel = null;
 let PresenceView = null;
 let GlobalChatModel = null;
 let GlobalChatView = null;
 
-// Function to initialize Multisynq classes
 const initializeMultisynqClasses = () => {
     console.log("initializeMultisynqClasses called");
     console.log("window.Multisynq:", window.Multisynq);
@@ -28,19 +25,13 @@ const initializeMultisynqClasses = () => {
         return false;
     }
     
-    // Make Multisynq globally available
     if (!window.Multisynq) window.Multisynq = Multisynq;
     
-    // --- Multisynq Model ---
-    // This class holds the synchronized data for our lobby presence feature.
     PresenceModel = class extends Multisynq.Model {
         init(options) {
             super.init(options);
             
-            // 'this.players' is an object that will store all players currently in the lobby.
-            // It will be automatically synchronized.
             this.players = {};
-            // Subscribe to events using sessionId instead of viewId
             this.subscribe(this.sessionId, "player-join", this.handlePlayerJoin);
             this.subscribe(this.sessionId, "player-leave", this.handlePlayerLeave);
         }
@@ -56,21 +47,17 @@ const initializeMultisynqClasses = () => {
     PresenceModel.register("PresenceModel");
     PresenceModel.register("PresenceModel");
 
-    // --- Multisynq View ---
-    // This class is the bridge for sending messages (publishing events).
+ 
     PresenceView = class extends Multisynq.View {};
     
-    // --- Global Chat Model ---
-    // This class holds the synchronized data for our global chat feature.
     GlobalChatModel = class extends Multisynq.Model {
         init(options) {
             super.init(options);
             
             this.messages = [];
             this.users = new Map();
-            this.maxMessages = 1000; // Prevent memory bloat
+            this.maxMessages = 1000;
             
-            // Subscribe to chat events
             this.subscribe(this.sessionId, "sendMessage", this.handleMessage);
             this.subscribe(this.sessionId, "setNickname", this.handleNickname);
             this.subscribe(this.sessionId, "view-join", this.handleUserJoin);
@@ -80,9 +67,8 @@ const initializeMultisynqClasses = () => {
         handleMessage(data) {
             const { userId, text, timestamp } = data;
             
-            // Validate message
             if (!text || text.trim().length === 0) return;
-            if (text.length > 500) return; // Length limit
+            if (text.length > 500) return;
             
             const user = this.users.get(userId) || { nickname: "Anonymous" };
             
@@ -95,22 +81,18 @@ const initializeMultisynqClasses = () => {
                 serverTime: this.now()
             };
             
-            // Add to message history
             this.messages.push(message);
             
-            // Trim old messages if needed
             if (this.messages.length > this.maxMessages) {
                 this.messages = this.messages.slice(-this.maxMessages);
             }
             
-            // Broadcast to all users
             this.publish(this.sessionId, "newMessage", message);
         }
 
         handleNickname(data) {
             const { userId, nickname } = data;
             
-            // Validate nickname
             if (!nickname || nickname.trim().length === 0) return;
             if (nickname.length > 50) return;
             
@@ -125,7 +107,6 @@ const initializeMultisynqClasses = () => {
             
             this.users.set(userId, newUser);
             
-            // Announce nickname change
             if (oldUser && oldUser.nickname !== newUser.nickname) {
                 this.publish(this.sessionId, "nicknameChanged", {
                     userId,
@@ -134,7 +115,6 @@ const initializeMultisynqClasses = () => {
                 });
             }
             
-            // Update user list
             this.publishUserList();
         }
 
@@ -148,13 +128,11 @@ const initializeMultisynqClasses = () => {
                 });
             }
             
-            // Send recent messages to new user
-            const recentMessages = this.messages.slice(-50); // Last 50 messages
+            const recentMessages = this.messages.slice(-50);
             this.publish(viewId, "messageHistory", recentMessages);
             
             this.publishUserList();
             
-            // Announce user joined
             const user = this.users.get(viewId);
             this.publish(this.sessionId, "userJoined", {
                 userId: viewId,
@@ -168,7 +146,6 @@ const initializeMultisynqClasses = () => {
                 this.users.delete(viewId);
                 this.publishUserList();
                 
-                // Announce user left
                 this.publish(this.sessionId, "userLeft", {
                     userId: viewId,
                     nickname: user.nickname
@@ -203,15 +180,12 @@ const initializeMultisynqClasses = () => {
     return true;
 };
 
-// 1. Create the React Context
 const MultisynqContext = createContext(null);
 
-// 2. Create a custom hook to easily use the context
 export const useMultisynq = () => {
   return useContext(MultisynqContext);
 };
 
-// 3. Create the Provider component that will wrap our app
 export const MultisynqProvider = ({ children }) => {  
     const [session, setSession] = useState(null);
     const [chatSession, setChatSession] = useState(null);
@@ -249,14 +223,13 @@ export const MultisynqProvider = ({ children }) => {
                     });
                     
                     if (Multisynq && Multisynq.Session && Multisynq.App && typeof Multisynq.Session.join === "function") {
-                        // Initialize classes once Multisynq is available
                         if (!PresenceModel || !PresenceView || !GlobalChatModel || !GlobalChatView) {
                             const success = initializeMultisynqClasses();
                             console.log("Multisynq classes initialized:", success);
                         }
                         resolve();
                     } else {
-                        setTimeout(checkMultisynq, 100); // Check every 100ms
+                        setTimeout(checkMultisynq, 100);
                     }
                 };
                 checkMultisynq();
@@ -265,10 +238,8 @@ export const MultisynqProvider = ({ children }) => {
 
         const init = async () => {
             try {
-                // Wait for Multisynq library to be loaded
                 await waitForMultisynq();
                 
-                // Create presence session
                 const newSession = await Multisynq.Session.join({
                     apiKey: apiKey,
                     appId: `${appId}.presence`,
@@ -278,7 +249,6 @@ export const MultisynqProvider = ({ children }) => {
                     view: PresenceView
                 });
                 
-                // Create chat session
                 const newChatSession = await Multisynq.Session.join({
                     apiKey: apiKey,
                     appId: `${appId}.chat`,
@@ -304,7 +274,6 @@ export const MultisynqProvider = ({ children }) => {
 
         return () => {
             isMounted = false;
-            // Optionally, you can add logic here to leave the session when the app closes
         };
     }, []);
 

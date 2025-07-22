@@ -80,7 +80,6 @@
   }
 }
 
-/* Custom Animations */
 @keyframes fadeInOut {
   0% {
     opacity: 0;
@@ -104,7 +103,6 @@
   animation: fadeInOut 4s ease-in-out forwards;
 }
 
-/* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -121,7 +119,6 @@
   @apply bg-purple-500;
 }
 
-/* Loading Animation */
 @keyframes spin {
   to {
     transform: rotate(360deg);
