@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAccount } from 'wagmi';
 import { supabase } from '../utils/supabaseClient';
 import { Glitch } from './Glitch';
 import { DataFragment } from './DataFragment';
 import { MutationDisplay } from './MutationDisplay';
+import { VirtualControls } from './VirtualControls';
 import { soundManager } from '../utils/sounds';
+import { useHybridInput, useIsMobile } from '../hooks/useHybridInput';
 
 const duelMutations = [
   { 
@@ -39,21 +41,6 @@ const duelMutations = [
   }
 ];
 
-const useKeyPress = () => {
-  const [keys, setKeys] = useState({});
-  useEffect(() => {
-    const handleKeyDown = (e) => setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: true }));
-    const handleKeyUp = (e) => setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: false }));
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, []);
-  return keys;
-};
-
 export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
   const { address } = useAccount();
   const [player, setPlayer] = useState({ x: 100, y: 100, score: 0, direction: 'right', velocity: { x: 0, y: 0 } });
@@ -64,8 +51,11 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
   const [mutationTimeLeft, setMutationTimeLeft] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isPlayer1] = useState(duel.player1 === address);
+  const [virtualKeys, setVirtualKeys] = useState({});
   
-  const keys = useKeyPress();
+  // Use hybrid input (keyboard + virtual controls)
+  const keys = useHybridInput(virtualKeys);
+  const isMobile = useIsMobile();
   const arenaRef = useRef(null);
   const keysRef = useRef(keys);
   const basePlayerSpeed = 5;
@@ -416,7 +406,7 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
 
         {/* Controls hint */}
         <div className="absolute bottom-2 left-2 text-xs text-gray-500 bg-black/50 rounded px-2 py-1">
-          WASD or Arrow keys to move • Collect fragments • Beat your opponent!
+          {isMobile ? '📱 Use touch controls • Collect fragments • Beat your opponent!' : 'WASD or Arrow keys to move • Collect fragments • Beat your opponent!'}
         </div>
 
         {/* Duel info */}
@@ -424,6 +414,14 @@ export function DuelGame({ duel, onGameOver, playerAvatar, selectedNFT }) {
           ⚔️ DUEL MODE
         </div>
       </div>
+
+      {/* Virtual Controls for Mobile */}
+      {isMobile && (
+        <VirtualControls 
+          onInputChange={setVirtualKeys}
+          isVisible={true}
+        />
+      )}
     </div>
   );
 }

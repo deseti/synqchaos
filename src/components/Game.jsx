@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Glitch } from './Glitch';
 import { DataFragment } from './DataFragment';
 import { MutationDisplay } from './MutationDisplay';
+import { VirtualControls } from './VirtualControls';
 import { soundManager } from '../utils/sounds';
+import { useHybridInput, useIsMobile } from '../hooks/useHybridInput';
 
 const mutations = [
   { 
@@ -51,21 +53,6 @@ const mutations = [
   }
 ];
 
-const useKeyPress = () => {
-  const [keys, setKeys] = useState({});
-  useEffect(() => {
-    const handleKeyDown = (e) => setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: true }));
-    const handleKeyUp = (e) => setKeys(prev => ({ ...prev, [e.key.toLowerCase()]: false }));
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, []);
-  return keys;
-};
-
 export function Game({ onGameOver, playerAvatar, selectedNFT }) { // UPDATED: Added selectedNFT prop
   const [player, setPlayer] = useState({ x: 100, y: 100, score: 0, direction: 'right', velocity: { x: 0, y: 0 } });
   const [fragments, setFragments] = useState([]);
@@ -73,7 +60,12 @@ export function Game({ onGameOver, playerAvatar, selectedNFT }) { // UPDATED: Ad
   const [activeMutation, setActiveMutation] = useState(null);
   const [mutationTimeLeft, setMutationTimeLeft] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const keys = useKeyPress();
+  const [virtualKeys, setVirtualKeys] = useState({});
+  
+  // Use hybrid input (keyboard + virtual controls)
+  const keys = useHybridInput(virtualKeys);
+  const isMobile = useIsMobile();
+  
   const arenaRef = useRef(null);
   const keysRef = useRef(keys);
   const basePlayerSpeed = 5;
@@ -321,9 +313,8 @@ export function Game({ onGameOver, playerAvatar, selectedNFT }) { // UPDATED: Ad
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
-
   return (
-    <div className="w-full h-[70vh] max-w-4xl flex flex-col items-center">
+    <div className="w-full h-[70vh] max-w-4xl flex flex-col items-center relative">
       <div className="w-full flex justify-between items-center mb-4 px-2">
         <div className="text-yellow-400 font-bold text-sm sm:text-base">Score: {player.score}</div>
         <div className={`font-bold text-sm sm:text-base ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-red-400'}`}>
@@ -362,12 +353,20 @@ export function Game({ onGameOver, playerAvatar, selectedNFT }) { // UPDATED: Ad
           <DataFragment key={fragment.id} position={{ x: fragment.x, y: fragment.y }} />
         ))}
         <Glitch position={{ x: player.x, y: player.y }} avatarName={playerAvatar} direction={player.direction} />
-        
+
         {/* Game controls hint */}
         <div className="absolute bottom-2 left-2 text-xs text-gray-500 bg-black/50 rounded px-2 py-1">
-          WASD or Arrow keys to move
+          {isMobile ? '📱 Use touch controls' : 'WASD or Arrow keys to move'}
         </div>
       </div>
+
+      {/* Virtual Controls for Mobile */}
+      {isMobile && (
+        <VirtualControls 
+          onInputChange={setVirtualKeys}
+          isVisible={true}
+        />
+      )}
     </div>
   );
 }
