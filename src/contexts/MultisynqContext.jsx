@@ -1,31 +1,42 @@
 // src/contexts/MultisynqContext.jsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-// --- Multisynq Model ---
-// This class holds the synchronized data for our lobby presence feature.
-class PresenceModel extends window.Multisynq.Model {
-    init() {
-        // 'this.players' is an object that will store all players currently in the lobby.
-        // It will be automatically synchronized.
-        this.players = {};
-        // The viewId is the unique identifier for each client connected.
-        this.subscribe(this.viewId, "player-join", this.handlePlayerJoin);
-        this.subscribe(this.viewId, "player-leave", this.handlePlayerLeave);
-    }
+// We'll define the classes after Multisynq is loaded
+let PresenceModel = null;
+let PresenceView = null;
 
-    handlePlayerJoin(playerData) {
-        this.players[playerData.address] = playerData;
-    }
+// Function to initialize Multisynq classes
+const initializeMultisynqClasses = () => {
+    if (!window.Multisynq) return false;
     
-    handlePlayerLeave(playerAddress) {
-        delete this.players[playerAddress];
-    }
-}
-PresenceModel.register("PresenceModel");
+    // --- Multisynq Model ---
+    // This class holds the synchronized data for our lobby presence feature.
+    PresenceModel = class extends window.Multisynq.Model {
+        init() {
+            // 'this.players' is an object that will store all players currently in the lobby.
+            // It will be automatically synchronized.
+            this.players = {};
+            // The viewId is the unique identifier for each client connected.
+            this.subscribe(this.viewId, "player-join", this.handlePlayerJoin);
+            this.subscribe(this.viewId, "player-leave", this.handlePlayerLeave);
+        }
 
-// --- Multisynq View ---
-// This class is the bridge for sending messages (publishing events).
-class PresenceView extends window.Multisynq.View {}
+        handlePlayerJoin(playerData) {
+            this.players[playerData.address] = playerData;
+        }
+        
+        handlePlayerLeave(playerAddress) {
+            delete this.players[playerAddress];
+        }
+    };
+    PresenceModel.register("PresenceModel");
+
+    // --- Multisynq View ---
+    // This class is the bridge for sending messages (publishing events).
+    PresenceView = class extends window.Multisynq.View {};
+    
+    return true;
+};
 
 // 1. Create the React Context
 const MultisynqContext = createContext(null);
@@ -51,8 +62,28 @@ export const MultisynqProvider = ({ children }) => {
 
         let isMounted = true;
 
+        const waitForMultisynq = () => {
+            return new Promise((resolve) => {
+                const checkMultisynq = () => {
+                    if (window.Multisynq && typeof window.Multisynq.joinSession === "function") {
+                        // Initialize classes once Multisynq is available
+                        if (!PresenceModel || !PresenceView) {
+                            initializeMultisynqClasses();
+                        }
+                        resolve();
+                    } else {
+                        setTimeout(checkMultisynq, 100); // Check every 100ms
+                    }
+                };
+                checkMultisynq();
+            });
+        };
+
         const init = async () => {
             try {
+                // Wait for Multisynq library to be loaded
+                await waitForMultisynq();
+                
                 const newSession = await window.Multisynq.joinSession({
                     appId: appId,
                     apiKey: apiKey,
